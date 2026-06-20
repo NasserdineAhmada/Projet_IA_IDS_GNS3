@@ -1,0 +1,35 @@
+% =====================================================
+% CONCLUSION
+% =====================================================
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+
+This project implemented a complete supervised Machine Learning pipeline applied to network traffic anomaly detection: exploratory analysis of a dataset containing 103,000 observations, preprocessing (cleaning, imputation, encoding), training of a \textbf{Random Forest} model (100 trees), evaluation, and validation.
+
+\section*{Results}
+\addcontentsline{toc}{section}{Results}
+
+On the test set (30,900 samples): \textbf{99.99\% accuracy}, precision/recall/F1-score = 1.00 for both classes, with only 2 false positives and 0 false negatives. Feature importance analysis identified the most discriminative network indicators.
+
+\section*{Limitations}
+\addcontentsline{toc}{section}{Limitations}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item A near-perfect score should be interpreted with caution: it may reflect a very clear separation specific to this dataset and may not generalize to real-world traffic.
+    \item Validation on a second independent dataset was planned (Part 4) but not executed due to the lack of an additional dataset.
+    \item GNS3 integration (Part 5) could not be completed due to hardware constraints.
+    \item Mean imputation is a simplification that may smooth out important signals.
+\end{itemize}
+
+\section*{Future work}
+\addcontentsline{toc}{section}{Future work}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item Test the model on larger and more diverse datasets.
+    \item Compare with other algorithms (XGBoost, SVM, logistic regression).
+    \item Explore deep learning approaches (LSTM, autoencoders) for sequential traffic analysis.
+    \item Integrate the model into a real-time processing pipeline (live traffic monitoring).
+    \item Apply cross-validation and hyperparameter tuning.
+    \item Complete GNS3 integration on a suitable platform.
+\end{itemize}
+

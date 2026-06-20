@@ -1,0 +1,98 @@
+% =====================================================
+% PART 4: MODEL VALIDATION
+% =====================================================
+\chapter{Model Validation}
+
+\section{Objective}
+
+The results in Part 3 are evaluated on a test set coming from the \textbf{same dataset} as training. The validation step consists of applying the \texttt{model\_forest} to a \textbf{second independent dataset}, using the same preprocessing pipeline from Part 2 and the same encoders (\texttt{encodeur\_proto}, \texttt{encodeur\_service}).
+
+\begin{lstlisting}[language=Python]
+# Same preprocessing as Part 2
+df_val = pd.read_csv("dataset_validation.csv", encoding='ISO-8859-1', sep=';')
+df_val = df_val.replace('#NOM?', np.nan)
+
+for col in ['Protocole', 'Service_cible']:
+    df_val[col] = df_val[col].fillna('UNKNOWN')
+
+for col in colonnes_quantitatives:
+    df_val[col] = pd.to_numeric(df_val[col], errors='coerce')
+    moyenne = df_val[col].mean()
+    df_val[col] = df_val[col].fillna(moyenne if pd.notna(moyenne) else 0)
+
+df_val = df_val.drop(columns=['Pays_source', 'Heure_connexion'], errors='ignore')
+df_val['Protocole'] = encodeur_proto.transform(df_val['Protocole'].astype(str))
+df_val['Service_cible'] = encodeur_service.transform(df_val['Service_cible'].astype(str))
+
+y_val = df_val['Etiquete']
+X_val = df_val.drop(columns=['Etiquete', 'IP_source', 'IP_destination'], errors='ignore')
+X_val = X_val[X.columns]
+
+# Prediction
+y_val_pred = model_forest.predict(X_val)
+proba_val_pred = model_forest.predict_proba(X_val)
+
+print(accuracy_score(y_val, y_val_pred))
+print(confusion_matrix(y_val, y_val_pred))
+print(classification_report(y_val, y_val_pred))
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Comparison: initial test vs validation set}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Test set (P3)} & \textbf{Validation set} \\
+\midrule
+Accuracy & 99.99\% & \textit{to be completed} \\
+Precision (class 1) & 1.00 & \textit{to be completed} \\
+Recall (class 1) & 1.00 & \textit{to be completed} \\
+F1-score (class 1) & 1.00 & \textit{to be completed} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Similar performance confirms the model’s ability to generalize. A significant drop would indicate overfitting to the training dataset and would require more diverse training data.
+
+\section{Anomaly reporting}
+
+For each observation classified as an “attack”, the following code generates a structured report (source/destination IP, protocol, service, confidence level):
+
+\begin{lstlisting}[language=Python]
+def generer_rapport_anomalies(df_source, X_partie, y_pred_partie, proba_partie,
+                                encodeur_service, titre="Anomaly report"):
+    index_attaques = X_partie.index[y_pred_partie == 1]
+    lignes = []
+    for idx in index_attaques:
+        pos = X_partie.index.get_loc(idx)
+        confiance = proba_partie[pos][1]
+
+        code_service = df_source.loc[idx, 'Service_cible']
+        try:
+            nom_service = encodeur_service.inverse_transform([int(code_service)])[0]
+        except (ValueError, IndexError):
+            nom_service = f"Service_Type_{code_service}"
+
+        lignes.append({
+            'IP_source': df_source.loc[idx, 'IP_source'],
+            'IP_destination': df_source.loc[idx, 'IP_destination'],
+            'Protocole': df_source.loc[idx, 'Protocole'],
+            'Service_cible': nom_service,
+            'Predicted_Class': 'Attack (1)',
+            'Confidence (%)': round(confiance * 100, 2)
+        })
+    print(f"=== {titre} : {len(lignes)} anomalies / {len(X_partie)} samples ===")
+    return pd.DataFrame(lignes)
+
+# Example: test set (Part 3)
+rapport_test = generer_rapport_anomalies(
+    df_source=df, X_partie=X_test, y_pred_partie=y_pred,
+    proba_partie=model_forest.predict_proba(X_test),
+    encodeur_service=encodeur_service, titre="Anomalies - Test set"
+)
+display(rapport_test.head(20))
+\end{lstlisting}
+
+\figplaceholder{tableau_anomalies.png}{Extract of detected anomalous observations table}{0.95}
+
+The confidence score (\texttt{predict\_proba}) is used to \textbf{prioritize alerts}: an attack detected with 99\% confidence is more critical than one detected at 55\%, which is closer to the decision boundary.

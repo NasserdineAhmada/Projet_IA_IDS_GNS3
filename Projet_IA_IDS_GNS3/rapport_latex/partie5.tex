@@ -1,0 +1,36 @@
+% =====================================================
+% PART 5: PRACTICAL APPLICATION PROPOSAL
+% =====================================================
+\chapter{Practical Application Proposal (GNS3)}
+
+\section{Context}
+
+Integrating the model into a simulated architecture using \textbf{GNS3} was initially planned to observe its behavior on dynamically generated network traffic. However, hardware limitations (number of required virtual machines) prevented full implementation. This section describes the \textbf{proposed architecture}.
+
+\section{Proposed architecture}
+
+\begin{table}[H]
+\centering
+\caption{Planned virtual machines}
+\label{tab:gns3}
+\small
+\begin{tabular}{p{3.8cm}p{9.2cm}}
+\toprule
+\textbf{Machine} & \textbf{Role} \\
+\midrule
+Legitimate client & Normal traffic: HTTP/HTTPS browsing, DNS requests, moderate data transfers. \\
+Attacker & Malicious traffic: port scanning, repeated connection attempts, flooding. \\
+Router / Switch & Network interconnection + centralized capture point (port mirroring). \\
+Target server & Hosting of services (web, DNS). \\
+AI analysis node & Captures traffic, extracts features (Part 1), applies preprocessing (Part 2), and runs the trained model. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\figplaceholder{architecture_gns3.png}{Proposed GNS3 network architecture diagram}{0.9}
+
+\section{Model usage}
+
+The “AI analysis” node would capture network traffic, extract features (duration, packets, throughput, TCP flags, connection attempts...), apply preprocessing and encoders from Part 2, and then feed the processed data into the trained \texttt{model\_forest}. The output (normal/anomalous) and confidence score would be displayed in a dashboard (see anomaly report, Part 4).
+
+This architecture represents a first prototype of a \textbf{machine learning-based intrusion detection system (ML-IDS)} in a controlled environment.

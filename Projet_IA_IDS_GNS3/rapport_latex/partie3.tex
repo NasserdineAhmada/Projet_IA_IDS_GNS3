@@ -1,0 +1,104 @@
+% =====================================================
+% PART 3: MODEL TRAINING AND EVALUATION
+% =====================================================
+\chapter{Model Training and Evaluation}
+
+\section{Random Forest principle}
+
+A \textbf{decision tree} classifies an observation through a sequence of rules on features (e.g., ``\texttt{Connection\_Attempts} $>$ 5000?''). On its own, it tends to overfit easily.
+
+A \textbf{Random Forest} combines 100 trees, each trained on:
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item a bootstrap sample (random sampling with replacement) of the data;
+    \item a random subset of features at each split.
+\end{itemize}
+
+The final prediction is obtained through a \textbf{majority vote} among all trees, which reduces variance and overfitting compared to a single decision tree.
+
+\section{Training}
+
+\begin{lstlisting}[language=Python]
+from sklearn.ensemble import RandomForestClassifier
+
+model_forest = RandomForestClassifier(
+    n_estimators=100, random_state=42, n_jobs=-1
+)
+model_forest.fit(X_train, y_train)
+\end{lstlisting}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item \texttt{n\_estimators=100}: balance between performance and computation time.
+    \item \texttt{random\_state=42}: reproducibility.
+    \item \texttt{n\_jobs=-1}: uses all CPU cores for parallel training.
+\end{itemize}
+
+\section{Test set evaluation}
+
+\begin{lstlisting}[language=Python]
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+y_pred = model_forest.predict(X_test)
+print(accuracy_score(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Confusion Matrix (test set, 30,900 samples)}
+\label{tab:confusion}
+\begin{tabular}{cc>{\centering\arraybackslash}p{3cm}>{\centering\arraybackslash}p{3cm}}
+\toprule
+ & & \multicolumn{2}{c}{\textbf{Predicted}} \\
+ & & Normal (0) & Attack (1) \\
+\midrule
+\multirow{2}{*}{\textbf{Actual}} & Normal (0) & 19 864 & 2 \\
+ & Attack (1) & 0 & 11 034 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Classification metrics}
+\label{tab:report}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\midrule
+0 (Normal) & 1.00 & 1.00 & 1.00 & 19 866 \\
+1 (Attack) & 1.00 & 1.00 & 1.00 & 11 034 \\
+\midrule
+\textbf{Accuracy} & \multicolumn{4}{c}{99.99\% (30,900 samples)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Result:} accuracy of 99.99\%, 2 false positives, 0 false negatives. Precision/recall/F1-score = 1.00 for both classes.
+
+\subsection*{Discussion}
+
+Such a near-perfect score should be interpreted with caution: it may reflect a very clear separation between classes in this dataset (low noise, limited overlap) rather than guaranteed real-world performance. No data leakage was detected (IP addresses excluded from $X$), but this result justifies validation on a second dataset (Part 4).
+
+\section{Confusion matrix visualization}
+
+\begin{lstlisting}[language=Python]
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[0],
+            xticklabels=['Normal', 'Attack'], yticklabels=['Normal', 'Attack'])
+axes[0].set_title("Confusion Matrix")
+
+plt.tight_layout()
+plt.savefig("figures/confusion_et_importance.png", dpi=150)
+plt.show()
+\end{lstlisting}
+
+\figplaceholder{confusion_et_importance.png}{Confusion matrix and top 10 most important features}{0.95}
+
+Feature importance analysis helps identify the most discriminative network indicators (e.g., connection attempts, TCP flags, throughput) and confirms that the model relies on meaningful behavioral signals rather than artifacts.

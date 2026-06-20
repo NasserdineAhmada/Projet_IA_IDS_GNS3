@@ -1,0 +1,26 @@
+% =====================================================
+% INTRODUCTION
+% =====================================================
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+
+Network intrusion detection is currently mainly based on \textbf{rule-based and signature-based systems} (IDS/IPS such as Snort, Suricata, or static thresholds in SIEM systems). These approaches are effective against known and documented attacks, but they have limitations: they only detect what is explicitly defined and generate false positives when thresholds are poorly tuned.
+
+Supervised Machine Learning offers a data-driven approach: the model learns from labeled examples to distinguish normal traffic from anomalous traffic, without relying only on fixed rules.
+
+This project aims to design a supervised classification model capable of analyzing network traffic features in order to automatically distinguish normal connections from malicious ones.
+
+\section*{Problem Statement}
+\addcontentsline{toc}{section}{Problem Statement}
+
+How can a model be designed to analyze network traffic features in order to automatically distinguish normal traffic from anomalous traffic with good generalization ability?
+
+\textbf{Objectives:}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item analyze and prepare a network traffic dataset;
+    \item build a supervised classification model;
+    \item evaluate its performance using standard metrics;
+    \item validate its generalization on a second dataset.
+\end{itemize}
+
+\textbf{Solution:} the approach is based on supervised learning using classification. The model is trained on labeled data to learn how to distinguish normal traffic from anomalous traffic, by generalizing from observed examples.

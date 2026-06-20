@@ -1,0 +1,104 @@
+% =====================================================
+% PART 1: EXPLORATORY DATA ANALYSIS
+% =====================================================
+\chapter{Exploratory Data Analysis}
+
+\section{Loading and general structure}
+
+\begin{lstlisting}[language=Python]
+import pandas as pd
+import numpy as np
+df = pd.read_csv("dataset.csv", encoding='ISO-8859-1', sep=';')
+df.info()
+df.describe()
+\end{lstlisting}
+
+\textbf{103,000 observations, 23 variables.} Table~\ref{tab:variables} summarizes the main features.
+
+\begin{table}[H]
+\centering
+\caption{Main dataset variables}
+\label{tab:variables}
+\small
+\begin{tabular}{p{4.2cm}p{8.5cm}}
+\toprule
+\textbf{Variable} & \textbf{Description} \\
+\midrule
+\texttt{IP\_source / IP\_destination} & Source / destination IP addresses (identifiers) \\
+\texttt{Port\_source / Port\_destination} & Source / destination ports \\
+\texttt{Protocole} & Protocol (TCP, UDP...) \\
+\texttt{Service\_cible} & Target service (HTTP, HTTPS, DNS...) \\
+\texttt{TTL\_moy} & Average packet lifetime (TTL) \\
+\texttt{Durée\_flux, Nb\_paquets\_envoyés} & Flow volume indicators \\
+\texttt{Débit\_paquets\_s, Débit\_octets\_s} & Traffic throughput metrics \\
+\texttt{Nb\_flag\_SYN/ACK/RST, Ratio\_SYN\_ACK} & TCP behavior indicators \\
+\texttt{Tentatives\_connexion, Nb\_connexions\_simult} & Activity indicators \\
+\texttt{Etiquete} & Target label: 0 = normal, 1 = attack \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key observations from \texttt{df.info()} :}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item several numerical columns (\texttt{Durée\_flux}, \texttt{Débit\_paquets\_s}, \texttt{Débit\_octets\_s}, \texttt{IAT\_flux\_moy}, \texttt{Ratio\_SYN\_ACK}, \texttt{Volume\_par\_paquet\_moy}) are stored as \texttt{object} due to Excel error strings \texttt{\#NOM?};
+    \item a useless column \texttt{0} with no semantic meaning is present.
+\end{itemize}
+
+\section{Descriptive statistics and outliers}
+
+\texttt{df.describe()} reveals two important anomalies:
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item \textbf{Inconsistent negative values:} \texttt{Port\_source} (min $-5000$), \texttt{Port\_destination} (min $-4980$), \texttt{Nb\_paquets\_envoyés} (min $-3200$), \texttt{Tentatives\_connexion} (min $-19860$) — physically impossible, likely due to data generation or extraction errors.
+    \item \textbf{Extreme values:} e.g. \texttt{Nb\_flag\_ACK} — Q3 = 130 but max $\approx$ 4.7 million.
+\end{itemize}
+
+In an anomaly detection context, such extreme values may correspond to real attacks (flooding, brute force). Therefore, they are not systematically removed (see Part 2).
+
+\section{Class distribution}
+
+\begin{lstlisting}[language=Python]
+print(df['Etiquete'].value_counts())
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Target variable distribution}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Class} & \textbf{Count} & \textbf{Proportion} \\
+\midrule
+0 (Normal) & 66,257 & 64.3\% \\
+1 (Attack) & 36,743 & 35.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Moderate imbalance (ratio < 2:1), which is naturally handled by Random Forest without explicit resampling techniques.
+
+\figplaceholder{repartition_classes.png}{Class distribution (Normal vs Attack)}{0.6}
+
+\section{Missing values and duplicates}
+
+\begin{lstlisting}[language=Python]
+df.isnull().sum()
+df.duplicated().sum()
+\end{lstlisting}
+
+Most columns contain between 2\% and 8\% missing values, relatively evenly distributed (max: \texttt{Protocole} 8,184, \texttt{Service\_cible} 8,016). The target variable \texttt{Etiquete} has no missing values. The \texttt{\#NOM?} Excel error explains part of the missing values in numerical columns.
+
+\figplaceholder{heatmap_valeurs_manquantes.png}{Missing values heatmap by variable}{0.85}
+
+\section{Correlations and distributions}
+
+\section{Summary}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+    \item large dataset (103k rows), suitable for machine learning;
+    \item moderate and homogeneous missing values $\rightarrow$ imputation is feasible;
+    \item incorrectly typed numerical columns (\texttt{\#NOM?}) $\rightarrow$ requires conversion;
+    \item useless column \texttt{0} and categorical variables (\texttt{Protocole}, \texttt{Service\_cible}) require encoding;
+    \item moderate class imbalance and potentially informative outliers.
+\end{itemize}
+
+These observations directly guide the preprocessing pipeline (Part 2).

@@ -1,0 +1,228 @@
+\documentclass[12pt,a4paper]{report}
+
+% ===================== PACKAGES =====================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+% \usepackage[french]{babel} % french babel not available; use UTF-8 directly
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{tocloft}
+\usepackage{multirow}
+\usepackage{colortbl}
+% \usepackage{biblatex} % retire : non utilise (pas de .bib / \printbibliography),
+% entrait en conflit avec la bibliographie manuelle (thebibliography + \cite)
+
+% ===================== COLORS =====================
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{lightgray}{RGB}{245,245,245}
+\definecolor{codegray}{RGB}{240,240,240}
+
+% ===================== PAGE STYLE =====================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[L]{\small Design of an AI-based network anomaly detection system}
+\fancyhead[R]{\small \thepage}
+\fancyfoot[C]{\small Project report -- Academic year 2025/2026}
+
+% Chapters and sections titles
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\color{darkblue}}
+  {\Large\chaptertitlename\ \thechapter}
+  {10pt}
+  {\Huge}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{darkblue}}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {\thesubsection}{1em}{}
+
+% Python code settings
+\lstdefinestyle{python}{
+    backgroundcolor=\color{codegray},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray},
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showstringspaces=false,
+    tabsize=4
+}
+\lstset{style=python}
+
+\renewcommand{\arraystretch}{1.3}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    citecolor=darkblue,
+    urlcolor=darkblue,
+    pdftitle={Design of an AI-based network anomaly detection system},
+    pdfauthor={Project group},
+}
+
+% Renaming in English
+\renewcommand{\contentsname}{Table of Contents}
+\renewcommand{\listfigurename}{List of Figures}
+\renewcommand{\listtablename}{List of Tables}
+\renewcommand{\chaptername}{Chapter}
+\renewcommand{\figurename}{Figure}
+\renewcommand{\tablename}{Table}
+
+% Macro to insert figures: if image exists in figures/,
+% it is displayed; otherwise a placeholder box is shown.
+\newcommand{\figplaceholder}[3]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{figures/#1}{%
+      \includegraphics[width=#3\linewidth]{figures/#1}%
+    }{%
+      \fbox{\parbox[c][5cm][c]{#3\linewidth}{\centering\textit{Reserved space for: #2}\\[0.3cm]\footnotesize(expected file: \texttt{\detokenize{figures/#1}})}}%
+    }
+    \caption{#2}
+  \end{figure}
+}
+
+\begin{document}
+
+% =====================================================
+% COVER PAGE
+% =====================================================
+\begin{titlepage}
+    \centering
+    \vspace*{0.3cm}
+
+    % Reserved space for institution logo
+    \begin{figure}[h]
+    \centering
+\includegraphics[width=15cm,height=3cm]{figures/logo.png}
+\end{figure}
+
+    \vspace{0.5cm}
+
+    {\Large \textbf{NATIONAL SCHOOL OF APPLIED SCIENCES OF KENITRA}}\\[0.3cm]
+    {\large Networks \& Telecommunications}\\[1.5cm]
+
+    \rule{\linewidth}{0.5mm}\\[0.6cm]
+
+    {\huge \bfseries Design of an AI-based system for analysis and detection of anomalies in network traffic}\\[0.6cm]
+
+    \rule{\linewidth}{0.5mm}\\[1.5cm]
+
+    {\Large \textit{Project Report -- Artificial Intelligence and Machine Learning}}\\[2cm]
+
+    \begin{minipage}{0.48\textwidth}
+        \begin{flushleft} \large
+            \textbf{Prepared by:}\\[0.3cm]
+            \begin{itemize}[leftmargin=*]
+                \item[--] NASSERDINE AHMADA
+                \item[--] SOKHNA DIAKHATE
+                \item[--] MOHAMED MBAYE
+                \item[--] SAID AHMED ROUKIA 
+            \end{itemize}
+        \end{flushleft}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \begin{flushright} \large
+            \textbf{Supervised by:}\\[0.3cm]
+            ANISS MOUMEN
+        \end{flushright}
+    \end{minipage}
+
+    \vfill
+
+    {\large Academic year: \textbf{2025 / 2026}}
+    \vspace{1cm}
+
+\end{titlepage}
+
+% =====================================================
+% TABLE OF CONTENTS
+% =====================================================
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+
+\input{intro}
+\input{partie1}
+\input{partie2}
+\input{partie3}
+\input{partie4}
+\input{partie5}
+\input{conclusion}
+
+% =====================================================
+% BIBLIOGRAPHY
+% =====================================================
+\addcontentsline{toc}{chapter}{Bibliography}
+\begin{thebibliography}{9}
+
+\bibitem{roesch1998snort}
+Roesch, M. (1998).
+\textit{Snort: Lightweight Intrusion Detection for Networks}.
+Proceedings of LISA '99, USENIX.
+Site officiel : \url{https://www.snort.org/}
+
+\bibitem{oisf_suricata}
+Open Information Security Foundation (OISF).
+\textit{Suricata: Open Source IDS/IPS/NSM Engine}.
+Documentation officielle : \url{https://docs.suricata.io/}
+
+\bibitem{resende2018survey}
+Resende, P. A. A., \& Drummond, A. C. (2018).
+\textit{A Survey of Random Forest Based Methods for Intrusion Detection Systems}.
+ACM Computing Surveys.
+
+\bibitem{ids_ml_survey2025}
+\textit{A systematic literature study of machine learning techniques based intrusion detection} (2025).
+Journal of Big Data.
+
+\bibitem{mckinney2010pandas}
+McKinney, W. (2010).
+\textit{Data Structures for Statistical Computing in Python}.
+Proceedings of the 9th Python in Science Conference, 56--61.
+\url{https://doi.org/10.25080/Majora-92bf1922-00a}
+
+\bibitem{pedregosa2011sklearn}
+Pedregosa, F., Varoquaux, G., Gramfort, A., et al. (2011).
+\textit{Scikit-learn: Machine Learning in Python}.
+Journal of Machine Learning Research, 12, 2825--2830.
+
+\bibitem{breiman2001randomforest}
+Breiman, L. (2001).
+\textit{Random Forests}.
+Machine Learning, 45(1), 5--32.
+\url{https://doi.org/10.1023/A:1010933404324}
+
+\bibitem{RandomForest}Random Forest (chapitre 3, principe de l'algorithme)
+
+\bibitem{gns3}
+GNS3 Technologies Inc.
+\textit{GNS3 --- Graphical Network Simulator-3}.
+\url{https://www.gns3.com/}
+
+\end{thebibliography}
+
+\end{document}
+
